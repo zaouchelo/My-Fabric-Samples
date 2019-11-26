@@ -1,0 +1,40 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+#networks:
+  #my-net:
+networks:
+  default:
+    external:
+      name: my-net
+      
+services:
+
+  orderer.example.com:
+    container_name: orderer.example.com
+    image: hyperledger/fabric-orderer
+    environment:
+        - ORDERER_OPERATIONS_LISTENADDRESS=orderer.example.com:8443
+        - ORDERER_METRICS_PROVIDER=prometheus
+        - ORDERER_GENERAL_LOGLEVEL=debug
+        - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+        - ORDERER_GENERAL_LISTENPORT=7050
+        - ORDERER_GENERAL_GENESISMETHOD=file
+        - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+        - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+        - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+        - ORDERER_GENERAL_TLS_ENABLED=false
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=my-net
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    ports:
+      - 7050:7050
+    #networks:
+      #- my-net
